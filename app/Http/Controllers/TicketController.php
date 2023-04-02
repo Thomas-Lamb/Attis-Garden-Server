@@ -26,6 +26,7 @@ class TicketController extends Controller
             'email' => $request->input('email'),
             'content' => $request->input('content')
         ]);
+        return response(201);
     }
 
     /**
