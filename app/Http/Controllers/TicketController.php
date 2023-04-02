@@ -14,7 +14,7 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = Ticket::all();
-        return TicketResource::collection($tickets);
+        return response()->json(["data" => TicketResource::collection($tickets)], 202);
     }
 
     /**

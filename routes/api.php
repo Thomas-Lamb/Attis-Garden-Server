@@ -9,6 +9,7 @@ use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\TicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,3 +68,6 @@ route::middleware('auth.api')->group(function () {
 route::middleware('auth.api')->group(function () {
     Route::apiResource('commande', CommandeController::class);
 });
+
+Route::get('ticket', [TicketController::class, 'index']);
+Route::post('ticket', [TicketController::class, 'store']);
