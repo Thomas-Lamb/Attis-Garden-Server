@@ -28,6 +28,6 @@ class CreateAiTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ai_categories');
+        Schema::dropIfExists('ai');
     }
 }
