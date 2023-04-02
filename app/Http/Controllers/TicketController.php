@@ -26,7 +26,7 @@ class TicketController extends Controller
             'email' => $request->input('email'),
             'content' => $request->input('content')
         ]);
-        return response(201);
+        return response()->json(["state" => "Created"], 201);;
     }
 
     /**
