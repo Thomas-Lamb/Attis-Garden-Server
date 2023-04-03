@@ -10,6 +10,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,48 +27,53 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// User Login/Register
 Route::post('user/register', [UserController::class, 'register']);
 Route::get('user/login', [UserController::class, 'login']);
 
-route::middleware('auth.api')->group(function () {
-    Route::put('user/pwd', [UserController::class, 'changeMdp']);
-});
+Route::middleware('auth.api')->group(function () {
+    // Update Password
+    Route::put('user/pwd', [UserController::class, 'updatePwd']);
 
-route::middleware('auth.api')->group(function () {
-    Route::delete('user/{user}', [UserController::class, 'destroy']);
-});
+    // Update Email
+    Route::put('user/email', [UserController::class, 'updateEmail']);
 
-route::middleware('auth.api')->group(function () {
-    Route::put('user', [UserController::class, 'update']);
-});
+    // Delete User
+    Route::delete('user', [UserController::class, 'destroy']);
 
-route::middleware('auth.api')->group(function () {
+    // Get info with api_token
     Route::get('user', [UserController::class, 'index']);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api Bac
     Route::apiResource('bac', BacController::class);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api compartiment
     Route::apiResource('compartiment', CompartimentController::class);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api Produit
     Route::apiResource('produit', ProduitController::class);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api Stock
     Route::apiResource('stock', StockController::class);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api AI
     Route::apiResource('ai', AIController::class);
-});
 
-route::middleware('auth.api')->group(function () {
+    // Api Commande
     Route::apiResource('commande', CommandeController::class);
 });
 
+// Administration
+Route::middleware('privilege.modo')->group(function () {
+    // Get all users
+    Route::get('admin/user', [AdminController::class, 'index']);
+
+    // Update user
+    Route::put('admin/user', [AdminController::class, 'update']);
+
+    // Delete user
+    Route::delete('admin/user', [AdminController::class, 'destroy']);
+});
+// Api Tickets
 Route::get('ticket', [TicketController::class, 'index']);
 Route::post('ticket', [TicketController::class, 'store']);

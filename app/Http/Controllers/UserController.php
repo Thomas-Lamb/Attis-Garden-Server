@@ -23,16 +23,17 @@ class UserController extends Controller
             'name' => $request->input('name'),
             'password' => $request->input('password'),
             'email' => $request->input('email'),
-            'api_token' => Str::random(20)
+            'api_token' => Str::random(20),
+            'privilege' => 3
         ])) {
-            return response()->json(["created" => TRUE], 201);
+            return response()->json(["state" => "OK"], 201);
         }
     }
 
     public function login(Request $request)
     {
-        if ($user = User::where('name', $request->input('name'))->where('password', $request->input('password'))->first()) {
-            return response()->json(new UserResource($user), 202);
+        if ($user = User::where('email', $request->input('email'))->where('password', $request->input('password'))->first()) {
+            return response()->json(["data" => new UserResource($user), 'state' => 'OK'], 200);
         }
         else {
             return response()->json(["state" => "Bad username or password"], 400);
@@ -42,7 +43,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($user = User::where('api_token', $request->input('api_token'))->first()) {
-            return response()->json(new UserResource($user), 202);
+            return response()->json(["data" => new UserResource($user), 'state' => 'OK'], 200);
         }
     }
 
@@ -53,17 +54,29 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function updateEmail(Request $request)
     {
         if (User::where("email", $request->input("email"))->first()) {
             return response()->json(["state" => "Email allready used"], 400);
         }
-        if ($request->input('password')) {
-            return response()->json(["state" => "You need to use the /api/user/pwd route to change the password"], 400);
-        }
         if ($user = User::where("api_token", $request->input("api_token"))->first()) {
-            $user->update($request->all());
-            return response()->json([], 204);
+            $user->update([
+                "email" => $request->input("email")
+            ]);
+            return response()->json(["state" => "OK"], 202);
+        }
+    }
+
+    public function updatePwd(Request $request, User $user)
+    {
+        if ($user = User::where('api_token', $request->input('api_token'))->where('password', $request->input('current_password'))->first()) {
+            $user->update([
+                "password" => $request->input("password")
+            ]);
+            return response()->json(["state" => "OK"], 202);
+        }
+        else {
+            return response()->json(["state" => "Bad api token or password"], 400);
         }
     }
 
@@ -73,30 +86,16 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy($user, Request $request)
+    public function destroy(Request $request)
     {
-        if ($getuser = User::where("id", $user)->first()) {
-            if ($getuser->api_token == $request->input("api_token")) {
-                return response()->json(["state" => "the user \"" . $getuser->name . "\" has been deleted"], 202);
-                $getuser->delete();
-            }
-            else {
-                return response()->json(["state" => "Bad api token or id"], 400);
-            }
+        if ($getuser = User::where("api_token", $request->input("api_token"))->first()) {
+            return response()->json(["state" => "OK"], 202);
+            $getuser->delete();
         }
         else {
-            return response()->json(["state" => "Bad api token or id"], 400);
+            return response()->json(["state" => "Invalid api_token"], 400);
         }
     }
 
-    public function changeMdp(Request $request, User $user)
-    {
-        if ($user = User::where('api_token', $request->input('api_token'))->where('password', $request->input('current_password'))->first()) {
-            $user->update($request->all());
-            return response()->json(["state" => "Pwd changed"], 202);
-        }
-        else {
-            return response()->json(["state" => "Bad api token or password"], 400);
-        }
-    }
+
 }

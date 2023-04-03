@@ -10,10 +10,10 @@ class ApiTokenTest extends TestCase
 {
     public function test_apiToken() {
         $response = $this->getJson('/api/user', [
-            'api_token' => "cG1K8uKxQsiMrg3J1aNT"
+            'api_token' => "S454b7LnajSrXt39Dlcj"
         ]);
 
-        $response->assertStatus(202);
+        $response->assertStatus(200);
     }
 
     public function test_bad_apiToken() {

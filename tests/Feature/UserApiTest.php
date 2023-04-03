@@ -8,11 +8,11 @@ use Tests\TestCase;
 class UserApiTest extends TestCase
 {
 
-    public $apiToken = "cG1K8uKxQsiMrg3J1aNT";
+    public $apiToken = "S454b7LnajSrXt39Dlcj";
     public $userMail = "test@test.com";
     public $userPwd = "testpwd";
     public $userName = "test";
-    public $userId = 56;
+    public $userId = 214;
     
     public function init() {
         $this->userMail = fake()->email();
@@ -28,11 +28,11 @@ class UserApiTest extends TestCase
             'email' => $this->userMail
         ]);
         $response = $this->getJson('/api/user/login', [
-            'name' => $this->userName,
+            'email' => $this->userMail,
             'password' => $this->userPwd
         ]);
-        $this->apiToken = $response["api_token"];
-        $this->userId = $response["id"];
+        $this->apiToken = $response["data"]["api_token"];
+        $this->userId = $response["data"]["id"];
     }
 
     public function test_register() {
@@ -46,7 +46,7 @@ class UserApiTest extends TestCase
         $response
             ->assertStatus(201)
             ->assertJson([
-                'created' => true,
+                'state' => "OK",
             ]);
     }
 
@@ -66,14 +66,17 @@ class UserApiTest extends TestCase
 
    public function test_login() {
        $response = $this->getJson('/api/user/login', [
-           'name' => $this->userName,
+           'email' => $this->userMail,
            'password' => $this->userPwd
        ]);
     //    $this->apiToken = $response["api_token"];
        $response
-           ->assertStatus(202)
+           ->assertStatus(200)
            ->assertJson([
-               'name' => $this->userName
+            "data" => [
+                'name' => $this->userName
+            ],
+            "state" => "OK"
            ]);
    }
 
@@ -96,29 +99,32 @@ class UserApiTest extends TestCase
         ]);
 
         $response
-            ->assertStatus(202)
+            ->assertStatus(200)
             ->assertJson([
-                'name' => $this->userName,
-                'api_token' => $this->apiToken
+                "data" => [
+                    'name' => $this->userName,
+                    'api_token' => $this->apiToken
+                ],
+                "state" => "OK"
             ]);
     }
 
-    public function test_update() {
-        $response = $this->putJson('/api/user', [
+    public function test_update_email() {
+        $response = $this->putJson('/api/user/email', [
             'api_token' => $this->apiToken,
             'email' => "test_changed@test.com"
         ]);
 
-        $response = $this->putJson('/api/user', [
+        $response = $this->putJson('/api/user/email', [
             'api_token' => $this->apiToken,
             'email' => $this->userMail
         ]);
 
-        $response->assertStatus(204);
+        $response->assertStatus(202);
     }
 
     public function test_update_with_email_allready_used() {
-        $response = $this->putJson('/api/user', [
+        $response = $this->putJson('/api/user/email', [
             'api_token' => $this->apiToken,
             'email' => "testallreadyused@test.com"
         ]);
@@ -130,58 +136,31 @@ class UserApiTest extends TestCase
             ]);
     }
 
-    public function test_update_password() {
-        $response = $this->putJson('/api/user', [
-            'api_token' => $this->apiToken,
-            'password' => "newpassword"
-        ]);
-
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                "state" => "You need to use the /api/user/pwd route to change the password"
-            ]);
-    }
-
     public function test_delete_user() {
         $this->createUser();
 
-        $response = $this->deleteJson('/api/user/' . $this->userId, [
+        $response = $this->deleteJson('/api/user', [
             'api_token' => $this->apiToken
         ]);
 
         $response
             ->assertStatus(202)
             ->assertJson([
-                "state" => "the user \"" . $this->userName . "\" has been deleted"
-            ]);
-    }
-
-    public function test_delete_user_with_bad_id() {
-        $this->createUser();
-
-        $response = $this->deleteJson('/api/user/9999', [
-            'api_token' => $this->apiToken
-        ]);
-
-        $response
-             ->assertStatus(400)
-            ->assertJson([
-                "state" => "Bad api token or id"
+                "state" => "OK"
             ]);
     }
 
     public function test_delete_user_with_bad_token() {
         $this->createUser();
 
-        $response = $this->deleteJson('/api/user/' . $this->userId, [
-            'api_token' => "cG1K8uKxQsiMrg3J1aNT"
+        $response = $this->deleteJson('/api/user', [
+            'api_token' => "badtoken"
         ]);
 
         $response
              ->assertStatus(400)
             ->assertJson([
-                "state" => "Bad api token or id"
+                "state" => "Invalid api_token"
             ]);
     }
 
@@ -202,7 +181,7 @@ class UserApiTest extends TestCase
         $response
             ->assertStatus(202)
             ->assertJson([
-                'state' => 'Pwd changed'
+                'state' => 'OK'
             ]);
     }
 

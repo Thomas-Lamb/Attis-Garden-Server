@@ -14,7 +14,7 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = Ticket::all();
-        return response()->json(["data" => TicketResource::collection($tickets)], 202);
+        return response()->json(["data" => TicketResource::collection($tickets), 'state' => 'OK'], 202);
     }
 
     /**
@@ -26,7 +26,7 @@ class TicketController extends Controller
             'email' => $request->input('email'),
             'content' => $request->input('content')
         ]);
-        return response()->json(["state" => "Created"], 201);;
+        return response()->json(["state" => "OK"], 201);;
     }
 
     /**
