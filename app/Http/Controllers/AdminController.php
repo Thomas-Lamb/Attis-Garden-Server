@@ -27,6 +27,11 @@ class AdminController extends Controller
                     "password" => $request->input('user_password', $user->password),
                     "email" => $request->input('user_email', $user->email),
                 ]);
+                if ($request->input('user_privilege') && $request->input('user_privilege') > $admin->privilege) {
+                    $user->update([
+                        "privilege" => $request->input('user_privilge')
+                    ]); 
+                }
                 return response()->json([
                     'state' => 'ok',
                 ], 202);
