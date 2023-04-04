@@ -29,7 +29,7 @@ class AdminController extends Controller
                 ]);
                 if ($request->input('user_privilege') && $request->input('user_privilege') > $admin->privilege) {
                     $user->update([
-                        "privilege" => $request->input('user_privilge')
+                        "privilege" => $request->input('user_privilege')
                     ]); 
                 }
                 return response()->json([
