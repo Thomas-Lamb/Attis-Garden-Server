@@ -12,7 +12,6 @@ class Commande_produit extends Model
     protected $fillable = [
         'id_commande',
         'id_produit',
-        'quantity',
-        'prix'
+        'quantity'
     ];
 }

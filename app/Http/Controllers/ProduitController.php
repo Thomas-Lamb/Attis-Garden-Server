@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Produit;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Http\Resources\Produit as ResourcesProduit;
+use App\Http\Resources\ProduitResource;
 
 class ProduitController extends Controller
 {
@@ -18,7 +18,7 @@ class ProduitController extends Controller
     public function index()
     {
         $produits = Produit::all();
-        return ResourcesProduit::collection($produits);
+        return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
     }
 
     /**
@@ -31,8 +31,10 @@ class ProduitController extends Controller
     {
         if (Produit::create([
             'name' => $request->input('name'),
+            'image' => $request->input('image'),
             'price' => $request->input('price'),
             'stock' => $request->input('stock'),
+            'type' => $request->input('type'),
             'description' => $request->input('description'),
         ])) {
             return response()->json([], 201);
@@ -51,7 +53,7 @@ class ProduitController extends Controller
     public function show($produit)
     {
         $produit = Produit::where('id', $produit)->get();
-        return new ResourcesProduit($produit);
+        return response()->json(["data" => new ProduitResource($produit), 'state' => 'OK'], 202);
     }
 
     /**
