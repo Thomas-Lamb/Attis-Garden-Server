@@ -11,6 +11,7 @@ use App\Http\Controllers\AIController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PanierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +62,9 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Commande
     Route::apiResource('commande', CommandeController::class);
+
+    // Api Panier
+    Route::apiResource('panier', PanierController::class);
 });
 
 // Administration

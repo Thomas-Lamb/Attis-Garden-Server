@@ -7,7 +7,6 @@ use App\Models\Commande_produit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\CommandeResource;
-use App\Http\Resources\ProduitResource;
 use App\Http\Controllers\Controller;
 
 class CommandeController extends Controller
@@ -17,9 +16,10 @@ class CommandeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $commandes = Commande::all();
+        $user = User::where("api_token", $request->input("api_token"))->first();
+        $commandes = Commande::where("id_user", $user->id)->get();
         foreach ($commandes as $commande) {
             $commande_produits = Commande_produit::where("id_commande", $commande->id)->join('produits', 'commande_produits.id_produit', '=', 'produits.id')->get();
             $commande->produits = $commande_produits;
