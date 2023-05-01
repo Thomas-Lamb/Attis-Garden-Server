@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::table('users', function (Blueprint $table) {
-        //     $table->string("phone")->unique();
-        //     $table->string("first_name");
-        //     $table->string("last_name");
-        //     $table->renameColumn('name', 'username');
-        // });
+        Schema::table('users', function (Blueprint $table) {
+            $table->string("phone")->unique();
+            $table->string("first_name");
+            $table->string("last_name");
+        });
     }
 
     /**
@@ -24,11 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::table('users', function (Blueprint $table) {
-        //     $table->dropColumn("phone");
-        //     $table->dropColumn("first_name");
-        //     $table->dropColumn("last_name");
-        //     $table->renameColumn('username', 'name');
-        // });
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn("phone");
+            $table->dropColumn("first_name");
+            $table->dropColumn("last_name");
+        });
     }
 };

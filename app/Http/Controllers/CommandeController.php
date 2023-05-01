@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commande;
+use App\Models\Commande_produit;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Resources\Commande as ResourcesCommande;
+use App\Http\Resources\CommandeResource;
+use App\Http\Resources\ProduitResource;
 use App\Http\Controllers\Controller;
 
 class CommandeController extends Controller
@@ -17,7 +20,14 @@ class CommandeController extends Controller
     public function index()
     {
         $commandes = Commande::all();
-        return ResourcesCommande::collection($commandes);
+        foreach ($commandes as $commande) {
+            $commande_produits = Commande_produit::where("id_commande", $commande->id)->join('produits', 'commande_produits.id_produit', '=', 'produits.id')->get();
+            $commande->produits = $commande_produits;
+        }
+        return response()->json(
+            ["data" => CommandeResource::collection($commandes),
+            "state" => 'OK'],
+            200);
     }
 
     /**
@@ -28,11 +38,20 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
+        $user = User::where('api_token', $request->input('api_token'))->first();
         Commande::create([
-            'id_user' => $request->input('id_user'),
-            'traitement' => $request->input('traitement'),
-            'pay' => $request->input('pay')
+            'id_user' => $user->id,
+            'traitement' => $request->input('traitement', 1),
+            'pay' => $request->input('pay', 1)
         ]);
+        $commande = Commande::orderByDesc('created_at')->where('id_user', $user->id)->first();
+        foreach ($request->input('produits', []) as $produit) {
+            Commande_produit::create([
+                'id_produit' => $produit["id"],
+                'quantity' => $produit["quantity"],
+                'id_commande' => $commande->id
+            ]);
+        }
     }
 
     /**
@@ -43,7 +62,11 @@ class CommandeController extends Controller
      */
     public function show(Commande $commande)
     {
-        return new ResourcesCommande($commande);
+        $commande_produits = Commande_produit::where("id_commande", $commande->id)->join('produits', 'commande_produits.id_produit', '=', 'produits.id')->get();
+        $commande->produits = $commande_produits;
+        return response()->json(["data" => new CommandeResource($commande),
+            "state" => 'OK'],
+            200);
     }
 
     /**
@@ -55,11 +78,11 @@ class CommandeController extends Controller
      */
     public function update(Request $request, Commande $commande)
     {
-        Commande::update([
-            'id_user' => $request->input('id_user'),
-            'traitement' => $request->input('traitement'),
-            'pay' => $request->input('pay')
-        ]);
+        // Commande::update([
+        //     'id_user' => $request->input('id_user'),
+        //     'traitement' => $request->input('traitement'),
+        //     'pay' => $request->input('pay')
+        // ]);
     }
 
     /**

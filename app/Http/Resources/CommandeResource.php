@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Commande_produitResource;
 
-class Commande_produitResource extends JsonResource
+class CommandeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,12 +17,12 @@ class Commande_produitResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'image' => $this->image,
-            "quantity"=> $this->quantity,
-            "price"=> $this->price,
-            "type"=> $this->type,
-            'description' => $this->description
+            'id_user' => $this->id_user,
+            'traitement' => $this->traitement,
+            "pay"=> $this->pay,
+            "produits"=> Commande_produitResource::collection($this->produits),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }

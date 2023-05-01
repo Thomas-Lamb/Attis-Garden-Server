@@ -20,7 +20,10 @@ class UserController extends Controller
             return response()->json(["state" => "Email allready used"], 400);
         }
         if (User::create([
-            'name' => $request->input('name'),
+            'username' => $request->input('username'),
+            'first_name' => $request->input('first_name', 'invite'),
+            'last_name' => $request->input('last_name', 'invite'),
+            'phone' => $request->input('phone', "0000000000"),
             'password' => $request->input('password'),
             'email' => $request->input('email'),
             'api_token' => Str::random(20),

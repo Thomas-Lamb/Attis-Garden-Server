@@ -68,7 +68,7 @@ class BacController extends Controller
     {
         $user = User::firstWhere('api_token', $request->input('api_token'));
         $bacs = Bac::where('id_proprio', $user->id)->get();
-        return new ResourcesBac($bacs[$bac - 1]);
+        return new BacResource($bacs[$bac - 1]);
     }
 
     /**

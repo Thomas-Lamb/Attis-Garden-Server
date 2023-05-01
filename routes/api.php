@@ -54,7 +54,7 @@ Route::middleware('auth.api')->group(function () {
     Route::apiResource('produit', ProduitController::class);
 
     // Api Stock
-    Route::apiResource('stock', StockController::class);
+    //Route::apiResource('stock', StockController::class);
 
     // Api AI
     Route::apiResource('ai', AIController::class);
