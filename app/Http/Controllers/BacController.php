@@ -96,12 +96,12 @@ class BacController extends Controller
      * @param  \App\Models\Bac  $bac
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $bac)
+    public function destroy(Request $request, Bac $bac)
     {
         $user = User::firstWhere('api_token', $request->input('api_token'));
-        $bacs = Bac::where('id_proprio', $user->id)->get();
-        $compartiments = Compartiment::where('id_bac', $bacs[$bac - 1]->id);
-        if ($bacs[$bac - 1]->delete()) {
+        $compartiments = Compartiment::where('id_bac', $bac->id);
+        if ()
+        if ($bac->delete()) {
             $compartiments[0]->delete();
             $compartiments[1]->delete();
             $compartiments[2]->delete();
