@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompartimentController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\WikiController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\TicketController;
@@ -65,6 +66,9 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Panier
     Route::apiResource('panier', PanierController::class);
+
+    // Api Wiki
+    Route::apiResource('wiki', WikiController::class);
 });
 
 // Administration
