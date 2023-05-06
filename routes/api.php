@@ -54,6 +54,7 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
+    Route::get('produit/gratuit', [ProduitController::class, 'indexgratuit']);
 
     // Api Stock
     //Route::apiResource('stock', StockController::class);
@@ -69,6 +70,7 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Wiki
     Route::apiResource('wiki', WikiController::class);
+
 });
 
 // Administration

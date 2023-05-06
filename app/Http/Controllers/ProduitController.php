@@ -21,6 +21,12 @@ class ProduitController extends Controller
         return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
     }
 
+    // public function indexgratuit()
+    // {
+    //     $produits = Produit::where('price', 0)->first();
+    //     return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
+    // }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -32,7 +38,7 @@ class ProduitController extends Controller
         if (Produit::create([
             'name' => $request->input('name'),
             'image' => $request->input('image'),
-            'price' => $request->input('price'),
+            'price' => $request->input('price', 0),
             'stock' => $request->input('stock'),
             'type' => $request->input('type'),
             'description' => $request->input('description'),
