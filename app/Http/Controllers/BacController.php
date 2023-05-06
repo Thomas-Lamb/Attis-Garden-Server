@@ -99,17 +99,18 @@ class BacController extends Controller
     public function destroy(Request $request, Bac $bac)
     {
         $user = User::firstWhere('api_token', $request->input('api_token'));
-        $compartiments = Compartiment::where('id_bac', $bac->id);
-        if ()
-        if ($bac->delete()) {
-            $compartiments[0]->delete();
-            $compartiments[1]->delete();
-            $compartiments[2]->delete();
-            $compartiments[3]->delete();
-            return response()->json([], 201);
-        }
-        else {
-            return response()->json([], 400);
+        $compartiments = Compartiment::where('id_bac', $bac->id)->get();
+        if ($bac->id_proprio == $user->id) {
+            if ($bac->delete()) {
+                $compartiments[0]->delete();
+                $compartiments[1]->delete();
+                $compartiments[2]->delete();
+                $compartiments[3]->delete();
+                return response()->json([], 201);
+            }
+            else {
+                return response()->json([], 400);
+            }
         }
     }
 }
