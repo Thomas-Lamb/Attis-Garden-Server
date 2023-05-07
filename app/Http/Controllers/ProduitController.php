@@ -21,11 +21,11 @@ class ProduitController extends Controller
         return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
     }
 
-    // public function indexgratuit()
-    // {
-    //     $produits = Produit::where('price', 0)->first();
-    //     return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
-    // }
+    public function gratuit()
+    {
+        $produits = Produit::where('price', 0)->get();
+        return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -56,9 +56,8 @@ class ProduitController extends Controller
      * @param  \App\Models\Compartiment  $compartiment
      * @return \Illuminate\Http\Response
      */
-    public function show($produit)
+    public function show(Produit $produit)
     {
-        $produit = Produit::where('id', $produit)->get();
         return response()->json(["data" => new ProduitResource($produit), 'state' => 'OK'], 202);
     }
 
@@ -69,11 +68,10 @@ class ProduitController extends Controller
      * @param  \App\Models\Compartiment  $compartiment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $produit)
+    public function update(Request $request, Produit $produit)
     {
-        $produits = Produit::firstWhere('id', $produit);
-        if ($produits->update($request->all())) {
-            return response()->json([], 201);
+        if ($produit->update($request->all())) {
+            return response()->json(['state' => 'OK'], 202);
         }
         else {
             return response()->json([], 400);

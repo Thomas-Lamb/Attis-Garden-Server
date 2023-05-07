@@ -15,8 +15,10 @@ class WikiController extends Controller
      */
     public function index()
     {
-        $wikis = Wiki::join('produits', 'wikis.id_produit', '=', 'produits.id')->get();
-        return response()->json(WikiResource::Collection($wikis), 200);
+        $wikis = Wiki::join('produits', 'wikis.id_produit', '=', 'produits.id')
+            ->select('wikis.*','produits.name','produits.image','produits.stock','produits.price', 'produits.description as description_produit', 'produits.type as type_produit')    
+            ->get();
+        return response()->json(['data' => WikiResource::Collection($wikis), 'state' => 'OK'], 200);
     }
 
     /**
@@ -43,8 +45,11 @@ class WikiController extends Controller
      */
     public function show(Wiki $wiki)
     {
-        $data = Wiki::where('wikis.id', $wiki->id)->join('produits', 'wikis.id_produit', '=', 'produits.id')->first();
-        return response()->json(new WikiResource($data), 200);
+        $data = Wiki::where('wikis.id', $wiki->id)
+            ->join('produits', 'wikis.id_produit', '=', 'produits.id')
+            ->select('wikis.*','produits.name','produits.image','produits.stock','produits.price', 'produits.description as description_produit', 'produits.type as type_produit')
+            ->first();
+        return response()->json(['data' => new WikiResource($data), 'state' => 'ok'], 200);
     }
 
     /**

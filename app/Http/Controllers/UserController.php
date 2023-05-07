@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PasswordReset;
 
 class UserController extends Controller
 {
@@ -100,5 +102,12 @@ class UserController extends Controller
         }
     }
 
+    public function pwdreset(Request $request) {
+        $user = User::where('email', $request->input('email'))->first();
+        if ($user) {
+            $user->update(['password' => Str::random(20)]);
+            Mail::to($request->input('email'))->send(new PasswordReset($user));
+        }
+    }
 
 }

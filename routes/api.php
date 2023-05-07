@@ -33,6 +33,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('user/register', [UserController::class, 'register']);
 Route::get('user/login', [UserController::class, 'login']);
 
+// Reset password with email
+Route::post('user/pwdreset', [UserController::class, 'pwdreset']);
+
 Route::middleware('auth.api')->group(function () {
     // Update Password
     Route::put('user/pwd', [UserController::class, 'updatePwd']);
@@ -54,7 +57,7 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
-    Route::get('produit/gratuit', [ProduitController::class, 'indexgratuit']);
+    Route::get('produitgratuit', [ProduitController::class, 'gratuit']);
 
     // Api Stock
     //Route::apiResource('stock', StockController::class);
