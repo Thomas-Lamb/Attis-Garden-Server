@@ -58,6 +58,7 @@ Route::middleware('auth.api')->group(function () {
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
     Route::get('produitgratuit', [ProduitController::class, 'gratuit']);
+    Route::get('produitpayant', [ProduitController::class, 'payant']);
 
     // Api Stock
     //Route::apiResource('stock', StockController::class);

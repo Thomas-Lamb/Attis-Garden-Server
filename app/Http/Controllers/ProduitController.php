@@ -27,6 +27,11 @@ class ProduitController extends Controller
         return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
     }
 
+    public function payant() {
+        $produits = Produit::where('price', '>', 0)->get();
+        return response()->json(["data" => ProduitResource::collection($produits), 'state' => 'OK'], 202);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
