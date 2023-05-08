@@ -23,7 +23,10 @@ class AdminController extends Controller
         if ($user = User::where('id', $request->input('user_id'))->first()) {
             if ($admin->privilege < $user->privilege) {
                 $user->update([
-                    "name" => $request->input('user_name', $user->name),
+                    "username" => $request->input('user_username', $user->username),
+                    "first_name" => $request->input('user_first_name', $user->first_name),
+                    "last_name" => $request->input('user_last_name', $user->last_name),
+                    "phone" => $request->input('user_phone', $user->phone),
                     "password" => $request->input('user_password', $user->password),
                     "email" => $request->input('user_email', $user->email),
                 ]);
