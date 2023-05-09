@@ -32,10 +32,10 @@ class BacController extends Controller
     public function store(Request $request)
     {
         $user = User::where('api_token', $request->input('api_token'))->first();
-        Compartiment::create(['id_plante' => 1, 'id_proprio' => $user->id]);
-        Compartiment::create(['id_plante' => 1, 'id_proprio' => $user->id]);
-        Compartiment::create(['id_plante' => 1, 'id_proprio' => $user->id]);
-        Compartiment::create(['id_plante' => 1, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
         $compartiments = Compartiment::orderByDesc('created_at')->take(4)->get();
         Bac::create([
             'id_proprio' => $user->id,
