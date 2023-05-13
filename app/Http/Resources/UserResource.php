@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+    public static $wrap = "data";
     /**
      * Transform the resource into an array.
      *
@@ -15,16 +16,11 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
             'username' => $this->username,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'phone' => $this->phone,
-            'email' => $this->email,
-            "email_verified_at"=> $this->email_verified_at,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            "api_token"=> $this->api_token
+            'email' => $this->email
         ];
     }
 }

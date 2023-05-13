@@ -14,6 +14,11 @@ class CompartimentResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id_plante' => $this->id_plante,
+            'date_plantation' => $this->date_plantation,
+            'cap_temp' => $this->cap_temp,
+            'cap_hydro' => $this->cap_hydro
+        ];
     }
 }

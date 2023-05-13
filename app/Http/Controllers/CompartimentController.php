@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bac;
-use App\Models\User;
 use App\Models\Compartiment;
 use Illuminate\Http\Request;
 use App\Http\Resources\CompartimentResource;
@@ -17,16 +15,7 @@ class CompartimentController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->input("api_token")) {
-            $user = User::where('api_token', $request->input('api_token'))->first();
-            $compartiments = Compartiment::where('id_proprio', $user->id)->get();
-            return response(CompartimentResource::collection($compartiments), 200);
-        }
-        elseif ($request->input("bac_token")) {
-            $bac = Bac::where("bac_token", $request->input("bac_token"))->first();
-            $compartiments = Compartiment::where('id_bac', $bac->id)->get();
-            return response(CompartimentResource::collection($compartiments), 200);
-        }
+        return response(['data' => CompartimentResource::collection($request['bac']->compGetAll())], 200);
     }
 
     /**
@@ -47,9 +36,8 @@ class CompartimentController extends Controller
      */
     public function show(Request $request, $compartiment)
     {
-        $user = User::firstWhere('api_token', $request->input('api_token'));
-        $compartiments = Compartiment::where('id_proprio', $user->id)->get();
-        return new CompartimentResource($compartiments[$compartiment - 1]);
+        $compartiment = $request['bac']->compGet($compartiment);
+        return response()->json(['data' => new CompartimentResource($compartiment)]);
     }
 
     /**
@@ -59,16 +47,21 @@ class CompartimentController extends Controller
      * @param  \App\Models\Compartiment  $compartiment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $compartiment)
+    public function update(Request $request, $compNum)
     {
-        $bac = Bac::firstWhere('bac_token', $request->input('bac_token'));
-        $compartiments = Compartiment::where('id_bac', $bac->id)->get();
-        if ($compartiments[$compartiment - 1]->update($request->all())) {
-            return response()->json([], 201);
+        $inputs = $request->validate([
+            'cap_hydro' => ['integer'],
+            'cap_temp' => ['integer'],
+            'id_plante' => ['integer']
+        ]);
+        $bac = $request['bac'];
+        $compartiment = $bac->compGet($compNum);
+        try {
+            $compartiment->update($inputs);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 400);
         }
-        else {
-            return response()->json([], 400);
-        }
+        return response()->json(['message' => 'Compartiment updated'], 201);
     }
 
     /**

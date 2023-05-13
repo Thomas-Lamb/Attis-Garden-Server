@@ -17,7 +17,7 @@ class PasswordReset extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(protected User $user)
+    public function __construct(protected string $new_password)
     {}
 
     /**
@@ -38,7 +38,7 @@ class PasswordReset extends Mailable
         return new Content(
             view: 'emails.pwdlost',
             with: [
-                'userPassword' => $this->user->password
+                'userPassword' => $this->new_password
             ],
         );
     }

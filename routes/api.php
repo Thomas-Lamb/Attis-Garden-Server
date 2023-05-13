@@ -36,24 +36,25 @@ Route::get('user/login', [UserController::class, 'login']);
 // Reset password with email
 Route::post('user/pwdreset', [UserController::class, 'pwdreset']);
 
-Route::middleware('auth.api')->group(function () {
-    // Update Password
-    Route::put('user/pwd', [UserController::class, 'updatePwd']);
-
-    // Update Email
-    Route::put('user/email', [UserController::class, 'updateEmail']);
-
-    // Delete User
-    Route::delete('user', [UserController::class, 'destroy']);
-
+Route::middleware('auth:sanctum')->group(function () {
     // Get info with api_token
     Route::get('user', [UserController::class, 'index']);
-
+    // Update Email
+    Route::put('user/email', [UserController::class, 'updateEmail']);
+    // Update Password
+    Route::put('user/pwd', [UserController::class, 'updatePwd']);
+    // Delete User
+    Route::delete('user', [UserController::class, 'destroy']);
     // Api Bac
     Route::apiResource('bac', BacController::class);
-
     // Api compartiment
+    Route::get('compartimenttest', [CompartimentController::class, 'test']);
+});
+
+
+Route::middleware('auth.api')->group(function () {
     Route::apiResource('compartiment', CompartimentController::class);
+    
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
@@ -74,7 +75,6 @@ Route::middleware('auth.api')->group(function () {
 
     // Api Wiki
     Route::apiResource('wiki', WikiController::class);
-
 });
 
 // Administration

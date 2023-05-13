@@ -20,20 +20,15 @@ class EnsureApiTokenIsValid
      */
     public function handle(Request $request, Closure $next)
     {
-        $api_token = $request->input('api_token');
-        $bac_token = $request->input('bac_token');
-        if ($api_token != null) {
-            if (User::firstWhere('api_token', $api_token)) {
-                return $next($request);
-            }
-        }
-        else if ($bac_token != null) {
-            if (Bac::firstWhere('bac_token', $bac_token)) {
-                return $next($request);
-            }
+        $inputs = $request->validate([
+            'bac_token' => ['required']
+        ]);
+        if ($bac = Bac::where('bac_token', $inputs['bac_token'])->first()) {
+            $request['bac'] = $bac;
+            return $next($request);
         }
         return response()->json([
-            'state' => 'Invalid api_token',
+            'state' => 'Invalid bac_token',
         ], 400);
     }
 }
