@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\Commande_produitResource;
 use App\Http\Controllers\Controller;
 
-class CommandeController extends Controller
+class Commande_produitController extends Controller
 {
     /**
      * Display a listing of the resource.

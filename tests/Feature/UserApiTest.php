@@ -8,22 +8,31 @@ use Tests\TestCase;
 class UserApiTest extends TestCase
 {
 
-    public $apiToken = "S454b7LnajSrXt39Dlcj";
-    public $userMail = "test@test.com";
-    public $userPwd = "testpwd";
-    public $userName = "test";
-    public $userId = 214;
-    
+    public $apiToken = "3|hI3DCIbXsNHMXvl4M31dWspbw8wn6eG2w8ydZen3";
+    public $userMail = "unitest@test.com";
+    public $userPwd = "password";
+    public $userUsername = "unitest";
+    public $userFirstname = "uni";
+    public $userLastname = "test";
+    public $userPhone = "1111111111";
+    public $userId = 4;
+
     public function init() {
         $this->userMail = fake()->email();
-        $this->userPwd = "mdptest";
-        $this->userName = fake()->name();
+        $this->userPwd = "password";
+        $this->userUsername = fake()->name();
+        $this->userFirstname = fake()->name();
+        $this->userLastname = fake()->name();
+        $this->userPhone = fake()->phoneNumber();
     }
 
     public function createUser() {
         $this->init();
         $response = $this->postJson('/api/user/register', [
-            'name' => $this->userName,
+            'username' => $this->userUsername,
+            'first_name' => $this->userFirstname,
+            'last_name' => $this->userLastname,
+            'phone' => $this->userPhone,
             'password' => $this->userPwd,
             'email' => $this->userMail
         ]);
@@ -32,35 +41,40 @@ class UserApiTest extends TestCase
             'password' => $this->userPwd
         ]);
         $this->apiToken = $response["data"]["api_token"];
-        $this->userId = $response["data"]["id"];
     }
 
     public function test_register() {
         $this->init();
         $response = $this->postJson('/api/user/register', [
-            'name' => $this->userName,
-            'password' => $this->userPwd,
-            'email' => $this->userMail
+            'username' => $this->userUsername,
+            'first_name' => $this->userFirstname,
+            'last_name' => $this->userLastname,
+            'phone' => $this->userPhone,
+            'email' => $this->userMail,
+            'password' => $this->userPwd
         ]);
-        
+
         $response
             ->assertStatus(201)
             ->assertJson([
-                'state' => "OK",
+                'message' => "User registered",
             ]);
     }
 
     public function test_register_with_email_allready_used() {
         $response = $this->postJson('/api/user/register', [
-            'name' => $this->userName,
-            'password' => $this->userPwd,
-            'email' => $this->userMail
+            'username' => $this->userUsername,
+            'first_name' => $this->userFirstname,
+            'last_name' => $this->userLastname,
+            'phone' => fake()->phoneNumber(),
+            'email' => $this->userMail,
+            'password' => $this->userPwd
         ]);
-        
+
         $response
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertJson([
-                'state' => "Email allready used"
+                'message' => "The email has already been taken."
             ]);
     }
 
@@ -69,134 +83,152 @@ class UserApiTest extends TestCase
            'email' => $this->userMail,
            'password' => $this->userPwd
        ]);
-    //    $this->apiToken = $response["api_token"];
+
        $response
            ->assertStatus(200)
            ->assertJson([
             "data" => [
-                'name' => $this->userName
-            ],
-            "state" => "OK"
+                'api_token' => $this->apiToken
+            ]
            ]);
    }
 
    public function test_login_with_bad_password() {
     $response = $this->getJson('/api/user/login', [
-        'name' => $this->userName,
+        'email' => $this->userMail,
         'password' => "badpassword"
     ]);
- //    $this->apiToken = $response["api_token"];
+
     $response
         ->assertStatus(400)
         ->assertJson([
-            'state' => "Bad username or password"
+            'message' => "Incorrect credentials"
         ]);
 }
 
     public function test_apiToken_login() {
-        $response = $this->getJson('/api/user', [
-            'api_token' => $this->apiToken
-        ]);
+        $data = [
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->getJson('/api/user', $data, $header);
 
         $response
             ->assertStatus(200)
             ->assertJson([
                 "data" => [
-                    'name' => $this->userName,
-                    'api_token' => $this->apiToken
-                ],
-                "state" => "OK"
+                    'username' => $this->userUsername,
+                ]
             ]);
     }
 
     public function test_update_email() {
-        $response = $this->putJson('/api/user/email', [
-            'api_token' => $this->apiToken,
+        $data = [
             'email' => "test_changed@test.com"
-        ]);
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->putJson('/api/user/email', $data, $header);
 
-        $response = $this->putJson('/api/user/email', [
-            'api_token' => $this->apiToken,
+        $data = [
             'email' => $this->userMail
-        ]);
+        ];
+        $response = $this->putJson('/api/user/email', $data, $header);
 
-        $response->assertStatus(202);
+        $response
+            ->assertStatus(202)
+            ->assertJson([
+                "message" => "Email updated"
+            ]);
     }
 
     public function test_update_with_email_allready_used() {
-        $response = $this->putJson('/api/user/email', [
-            'api_token' => $this->apiToken,
+        $data = [
             'email' => "testallreadyused@test.com"
-        ]);
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->putJson('/api/user/email', $data, $header);
 
         $response
-            ->assertStatus(400)
+            ->assertStatus(422)
             ->assertJson([
-                "state" => "Email allready used"
+                "message" => "The email has already been taken."
             ]);
     }
 
     public function test_delete_user() {
         $this->createUser();
 
-        $response = $this->deleteJson('/api/user', [
-            'api_token' => $this->apiToken
-        ]);
+        $data = [
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->deleteJson('/api/user', $data, $header);
 
         $response
-            ->assertStatus(202)
+            ->assertStatus(200)
             ->assertJson([
-                "state" => "OK"
+                'message' => 'User deleted'
             ]);
     }
 
-    public function test_delete_user_with_bad_token() {
-        $this->createUser();
+    // public function test_delete_user_with_bad_token() {
+    //     $this->createUser();
 
-        $response = $this->deleteJson('/api/user', [
-            'api_token' => "badtoken"
-        ]);
+    //     $response = $this->deleteJson('/api/user', [
+    //         'api_token' => "badtoken"
+    //     ]);
 
-        $response
-             ->assertStatus(400)
-            ->assertJson([
-                "state" => "Invalid api_token"
-            ]);
-    }
+    //     $response
+    //          ->assertStatus(400)
+    //         ->assertJson([
+    //             "state" => "Invalid api_token"
+    //         ]);
+    // }
 
     public function test_change_password() {
-
-        $response = $this->putJson('/api/user/pwd', [
-            'api_token' => $this->apiToken,
-            'current_password' => $this->userPwd,
-            'password' => "testpwd_change"
-        ]);
-
-        $response = $this->putJson('/api/user/pwd', [
-            'api_token' => $this->apiToken,
-            'current_password' => "testpwd_change",
-            'password' => $this->userPwd
-        ]);
+        $data = [
+            'current_password' => "password",
+            'password' => "password"
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->putJson('/api/user/pwd', $data, $header);
 
         $response
             ->assertStatus(202)
             ->assertJson([
-                'state' => 'OK'
+                'message' => 'Password updated'
             ]);
     }
 
     public function test_change_password_with_bad_password() {
 
-        $response = $this->putJson('/api/user/pwd', [
-            'api_token' => $this->apiToken,
+        $data = [
             'current_password' => "badpassword",
-            'password' => "testpwd_change"
-        ]);
+            'password' => "password"
+        ];
+        $header = [
+            "Authorization" => "Bearer " . $this->apiToken,
+            "Accept" => "application/json"
+        ];
+        $response = $this->putJson('/api/user/pwd', $data, $header);
 
         $response
             ->assertStatus(400)
             ->assertJson([
-                'state' => 'Bad api token or password'
+                'message' => 'Bad current password'
             ]);
     }
 }

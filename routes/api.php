@@ -9,7 +9,7 @@ use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\WikiController;
 use App\Http\Controllers\AIController;
-use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\Commande_produitController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PanierController;
@@ -51,10 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('compartimenttest', [CompartimentController::class, 'test']);
 });
 
-
 Route::middleware('auth.api')->group(function () {
     Route::apiResource('compartiment', CompartimentController::class);
-    
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
@@ -68,7 +66,7 @@ Route::middleware('auth.api')->group(function () {
     Route::apiResource('ai', AIController::class);
 
     // Api Commande
-    Route::apiResource('commande', CommandeController::class);
+    Route::apiResource('commande', Commande_produitController::class);
 
     // Api Panier
     Route::apiResource('panier', PanierController::class);

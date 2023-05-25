@@ -9,30 +9,54 @@ use Tests\TestCase;
 class ApiTokenTest extends TestCase
 {
     public function test_apiToken() {
-        $response = $this->getJson('/api/user', [
-            'api_token' => "S454b7LnajSrXt39Dlcj"
-        ]);
+        $data = [
+        ];
+        $header = [
+            "Authorization" => "Bearer hI3DCIbXsNHMXvl4M31dWspbw8wn6eG2w8ydZen3",
+            "Accept" => "application/json"
+        ];
+        $response = $this->getJson('/api/user', $data, $header);
 
         $response->assertStatus(200);
     }
 
     public function test_bad_apiToken() {
-        $response = $this->getJson('/api/user', [
-            'api_token' => "falseapitoken"
-        ]);
+        $data = [
+        ];
+        $header = [
+            "Authorization" => "Bearer falseapitoken",
+            "Accept" => "application/json"
+        ];
+        $response = $this->getJson('/api/user', $data, $header);
 
         $response
-            ->assertStatus(400)
+            ->assertStatus(401)
             ->assertJson([
-                'state' => 'Invalid api_token'
+                "message" => "Unauthenticated."
             ]);
     }
 
     public function test_bacToken() {
-        $response = $this->getJson('/api/compartiment', [
-            'bac_token' => "he6vYptB6V9cWqf9mVD7"
-        ]);
+        $data = [
+            "bac_token" => "wiNFSSfkbDfQgTWVlLje"
+        ];
+        $header = [
+            "Accept" => "application/json"
+        ];
+        $response = $this->getJson('/api/compartiment', $data, $header);
 
         $response->assertStatus(200);
+    }
+
+    public function test_bad_bacToken() {
+        $data = [
+            "bac_token" => "falsebactoken"
+        ];
+        $header = [
+            "Accept" => "application/json"
+        ];
+        $response = $this->getJson('/api/compartiment', $data, $header);
+
+        $response->assertStatus(400);
     }
 }
