@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Compartiment;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\CompartimentResource;
+use Illuminate\Http\Response;
+use Throwable;
 
 class CompartimentController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         return response(['data' => CompartimentResource::collection($request['bac']->compGetAll())], 200);
     }
@@ -21,8 +25,8 @@ class CompartimentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return void
      */
     public function store(Request $request)
     {
@@ -31,10 +35,11 @@ class CompartimentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Compartiment  $compartiment
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $compartiment
+     * @return JsonResponse
      */
-    public function show(Request $request, $compartiment)
+    public function show(Request $request, $compartiment): JsonResponse
     {
         $compartiment = $request['bac']->compGet($compartiment);
         return response()->json(['data' => new CompartimentResource($compartiment)]);
@@ -43,11 +48,11 @@ class CompartimentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Compartiment  $compartiment
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $compNum
+     * @return JsonResponse
      */
-    public function update(Request $request, $compNum)
+    public function update(Request $request, $compNum): JsonResponse
     {
         $inputs = $request->validate([
             'cap_hydro' => ['integer'],
@@ -58,7 +63,7 @@ class CompartimentController extends Controller
         $compartiment = $bac->compGet($compNum);
         try {
             $compartiment->update($inputs);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 400);
         }
         return response()->json(['message' => 'Compartiment updated'], 201);
@@ -67,8 +72,8 @@ class CompartimentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Compartiment  $compartiment
-     * @return \Illuminate\Http\Response
+     * @param Compartiment $compartiment
+     * @return void
      */
     public function destroy(Compartiment $compartiment)
     {
