@@ -15,7 +15,7 @@ return new class extends Migration
             $table->dropColumn("api_token");
         });
         Schema::table('users', function (Blueprint $table) {
-            $table->string('api_token', 64)->default(null);
+            $table->string('api_token', 64)->default(null)->nullable();
         });
     }
 
