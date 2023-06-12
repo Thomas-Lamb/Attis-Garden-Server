@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordReset;
 
 class UserController extends Controller
@@ -20,41 +18,40 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
-        $inputs = $request->validate([
-            'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required'],
-            'username' => ['required'],
-            'phone' => ['unique:users'],
-            'first_name' => [],
-            'last_name' => [],
-        ]);
-        $inputs['privilege'] = 3;
-        $inputs['password'] = Hash::make($inputs['password']);
-        if ($user = User::create($inputs)) {
-            $user_api_token = $user->createToken('token')->plainTextToken;
-            $user->update(['api_token' => $user_api_token]);
-            return response()->json(["message" => "User registered"], 201);
+        if (User::where("email", $request->input("email"))->first()) {
+            return response()->json(["state" => "Email allready used"], 400);
+        }
+        if (User::create([
+            'username' => $request->input('username'),
+            'first_name' => $request->input('first_name', 'invite'),
+            'last_name' => $request->input('last_name', 'invite'),
+            'phone' => $request->input('phone', "0000000000"),
+            'password' => $request->input('password'),
+            'email' => $request->input('email'),
+            'api_token' => Str::random(20),
+            'privilege' => 3
+        ])) {
+            return response()->json(["state" => "OK"], 201);
         }
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required']
-        ]); 
-
-        if (Auth::attempt($credentials)) {
-            return response()->json(["data" => ["api_token" => $request->user()->api_token]], 200);
+        if ($user = User::where('email', $request->input('email'))->where('password', $request->input('password'))->first()) {
+            return response()->json(["data" => new UserResource($user), 'state' => 'OK'], 200);
         }
-        return response()->json(["message" => "Incorrect credentials"], 400);
+        else {
+            return response()->json(["state" => "Bad username or password"], 400);
+        }
     }
 
     public function index(Request $request)
     {
-        return response()->json(["data" => new UserResource($request->user())], 200);
+        if ($user = User::where('api_token', $request->input('api_token'))->first()) {
+            return response()->json(["data" => new UserResource($user), 'state' => 'OK'], 200);
+        }
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -64,22 +61,28 @@ class UserController extends Controller
      */
     public function updateEmail(Request $request)
     {
-        $inputs = $request->validate([
-            'email' => ['email', 'required', 'unique:users']
-        ]);
-        $request->user()->update($inputs);
-        return response()->json(["message" => "Email updated"], 202);
+        if (User::where("email", $request->input("email"))->first()) {
+            return response()->json(["state" => "Email allready used"], 400);
+        }
+        if ($user = User::where("api_token", $request->input("api_token"))->first()) {
+            $user->update([
+                "email" => $request->input("email")
+            ]);
+            return response()->json(["state" => "OK"], 202);
+        }
     }
 
-    public function updatePwd(Request $request)
+    public function updatePwd(Request $request, User $user)
     {
-        $inputs = $request->validate([
-            'current_password' => ['required'],
-            'password' => ['required']
-        ]);
-        if (Hash::check($inputs['current_password'], $request->user()->password)) $request->user()->update(['password' => Hash::make($inputs['password'])]);
-        else return response()->json(['message' => "Bad current password"]);
-        return response()->json(["message" => "Password updated"], 202);
+        if ($user = User::where('api_token', $request->input('api_token'))->where('password', $request->input('current_password'))->first()) {
+            $user->update([
+                "password" => $request->input("password")
+            ]);
+            return response()->json(["state" => "OK"], 202);
+        }
+        else {
+            return response()->json(["state" => "Bad api token or password"], 400);
+        }
     }
 
     /**
@@ -90,22 +93,21 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        $request->user()->destroy();
-        return response()->json(['message' => 'User deleted'], 200);
+        if ($getuser = User::where("api_token", $request->input("api_token"))->first()) {
+            return response()->json(["state" => "OK"], 202);
+            $getuser->delete();
+        }
+        else {
+            return response()->json(["state" => "Invalid api_token"], 400);
+        }
     }
 
     public function pwdreset(Request $request) {
-        $inputs = $request->validate([
-            'email' => ['required', 'email']
-        ]);
-        $user = $request->user();
-        $new_password = Str::random(20);
-        try {
-            $user->update(['password' => Hash::make($new_password)]);
-            Mail::to($inputs['email'])->send(new PasswordReset($new_password));
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 400);
+        $user = User::where('email', $request->input('email'))->first();
+        if ($user) {
+            $user->update(['password' => Str::random(20)]);
+            Mail::to($request->input('email'))->send(new PasswordReset($user));
         }
-        return response()->json(['message' => "Email send"], 200);
     }
+
 }

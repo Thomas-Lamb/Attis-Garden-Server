@@ -18,9 +18,9 @@ class BacController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        $bacs = $user->bacGetAll();
-        return response(['data' => BacResource::collection($bacs)], 200);
+        $user = User::where('api_token', $request->input('api_token'))->first();
+        $bacs = Bac::where('id_proprio', $user->id)->get();
+        return response(new BacResource($bacs), 200);
     }
 
     /**
@@ -31,32 +31,31 @@ class BacController extends Controller
      */
     public function store(Request $request)
     {
-        $inputs = $request->validate([
-            'name' => ['required']
+        $user = User::where('api_token', $request->input('api_token'))->first();
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
+        $compartiments = Compartiment::orderByDesc('created_at')->take(4)->get();
+        Bac::create([
+            'id_proprio' => $user->id,
+            'name' => $request->input('name'),
+            'id_comp_1' => $compartiments[0]->id,
+            'id_comp_2' => $compartiments[1]->id,
+            'id_comp_3' => $compartiments[2]->id,
+            'id_comp_4' => $compartiments[3]->id,
+            'bac_token' => Str::random(20),
         ]);
-        $user = $request->user();
-        try {
-            $compartiments['1'] = Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
-            $compartiments['2'] = Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
-            $compartiments['3'] = Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
-            $compartiments['4'] = Compartiment::create(['id_plante' => 0, 'id_proprio' => $user->id]);
-            $bac = Bac::create([
-                'id_proprio' => $user->id,
-                'name' => $inputs['name'],
-                'id_comp_1' => $compartiments['1']->id,
-                'id_comp_2' => $compartiments['2']->id,
-                'id_comp_3' => $compartiments['3']->id,
-                'id_comp_4' => $compartiments['4']->id,
-                'bac_token' => Str::random(20),
-            ]);
-            $compartiments['1']->update(['id_bac' => $bac->id]);
-            $compartiments['2']->update(['id_bac' => $bac->id]);
-            $compartiments['3']->update(['id_bac' => $bac->id]);
-            $compartiments['4']->update(['id_bac' => $bac->id]);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 400);
+        if ($bac = Bac::orderByDesc('created_at')->where('id_proprio', $user->id)->first()) {
+            $compartiments[0]->update(['id_bac' => $bac->id]);
+            $compartiments[1]->update(['id_bac' => $bac->id]);
+            $compartiments[2]->update(['id_bac' => $bac->id]);
+            $compartiments[3]->update(['id_bac' => $bac->id]);
+            return response()->json([], 201);
         }
-        return response()->json(['message' => 'Bac created'], 201);
+        else {
+            return response()->json([], 400);
+        }
     }
 
     /**
@@ -65,12 +64,11 @@ class BacController extends Controller
      * @param  \App\Models\Bac  $bac
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $bacNum)
+    public function show(Request $request, $bac)
     {
-        $user = $request->user();
-        $bac = $user->bacGet($bacNum);
-        $bac->compartiments = $bac->compGetAll();
-        return response()->json(['data' => new BacResource($bac)], 200);
+        $user = User::firstWhere('api_token', $request->input('api_token'));
+        $bacs = Bac::where('id_proprio', $user->id)->get();
+        return new BacResource($bacs[$bac - 1]);
     }
 
     /**
@@ -80,19 +78,16 @@ class BacController extends Controller
      * @param  \App\Models\Bac  $bac
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $bacNum)
+    public function update(Request $request, $bac)
     {
-        $inputs = $request->validate([
-            'name' => ['required']
-        ]);
-        $user = $request->user();
-        $bac = $user->bacGet($bacNum);
-        try {
-            $bac->update($inputs);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 400);
+        $user = User::firstWhere('api_token', $request->input('api_token'));
+        $bacs = Bac::where('id_proprio', $user->id)->get();
+        if ($bacs[$bac - 1]->update($request->all())) {
+            return response()->json([], 201);
         }
-        return response()->json(['message' => 'Bac updated'], 201);
+        else {
+            return response()->json([], 400);
+        }
     }
 
     /**
@@ -101,19 +96,21 @@ class BacController extends Controller
      * @param  \App\Models\Bac  $bac
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $bacNum)
+    public function destroy(Request $request, Bac $bac)
     {
-        $user = $request->user();
-        $bac = $user->bacGet($bacNum);
-        $compartiments = $bac->compGetAll();
-        try {
-            foreach ($compartiments as $compartiment) {
-                $compartiment->delete();
+        $user = User::firstWhere('api_token', $request->input('api_token'));
+        $compartiments = Compartiment::where('id_bac', $bac->id)->get();
+        if ($bac->id_proprio == $user->id) {
+            if ($bac->delete()) {
+                $compartiments[0]->delete();
+                $compartiments[1]->delete();
+                $compartiments[2]->delete();
+                $compartiments[3]->delete();
+                return response()->json([], 201);
             }
-            $bac->delete();
-        } catch(\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 400);
+            else {
+                return response()->json([], 400);
+            }
         }
-        return response()->json(['message' => 'Bac and compartiments deleted'], 201);
     }
 }

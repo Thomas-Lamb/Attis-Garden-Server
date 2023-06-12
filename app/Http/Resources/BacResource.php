@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\CompartimentResource;
 
 class BacResource extends JsonResource
 {
@@ -16,10 +15,6 @@ class BacResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'name' => $this->name,
-            'compartiments' => CompartimentResource::collection($this->compartiments),
-            'bac_token' => $this->bac_token
-        ];
+        return parent::toArray($request);
     }
 }

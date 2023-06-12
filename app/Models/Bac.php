@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\HasCompartimentTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Bac extends Model
 {
-    use HasFactory, HasCompartimentTrait;
+    use HasFactory;
 
     protected $fillable = [
             'id_proprio',
