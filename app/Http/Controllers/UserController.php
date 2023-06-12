@@ -42,7 +42,7 @@ class UserController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required']
-        ]);
+        ]); 
 
         if (Auth::attempt($credentials)) {
             return response()->json(["data" => ["api_token" => $request->user()->api_token]], 200);
@@ -54,7 +54,7 @@ class UserController extends Controller
     {
         return response()->json(["data" => new UserResource($request->user())], 200);
     }
-
+    
     /**
      * Update the specified resource in storage.
      *
@@ -78,7 +78,7 @@ class UserController extends Controller
             'password' => ['required']
         ]);
         if (Hash::check($inputs['current_password'], $request->user()->password)) $request->user()->update(['password' => Hash::make($inputs['password'])]);
-        else return response()->json(['message' => "Bad current password"], 400);
+        else return response()->json(['message' => "Bad current password"]);
         return response()->json(["message" => "Password updated"], 202);
     }
 
@@ -90,7 +90,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        $request->user()->delete();
+        $request->user()->destroy();
         return response()->json(['message' => 'User deleted'], 200);
     }
 

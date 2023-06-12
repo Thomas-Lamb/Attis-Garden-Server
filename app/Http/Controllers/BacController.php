@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Bac;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use App\Models\Compartiment;
 use Illuminate\Http\Request;
@@ -28,8 +26,8 @@ class BacController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
-     * @return JsonResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
@@ -64,47 +62,46 @@ class BacController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param integer $bacNum
-     * @param Request $request
-     * @return JsonResponse
+     * @param  \App\Models\Bac  $bac
+     * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, int $bacNum): JsonResponse
+    public function show(Request $request, $bacNum)
     {
         $user = $request->user();
         $bac = $user->bacGet($bacNum);
+        $bac->compartiments = $bac->compGetAll();
         return response()->json(['data' => new BacResource($bac)], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param Bac $bac
-     * @return JsonResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Bac  $bac
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $bacNum): JsonResponse
+    public function update(Request $request, $bacNum)
     {
         $inputs = $request->validate([
             'name' => ['required']
         ]);
         $user = $request->user();
+        $bac = $user->bacGet($bacNum);
         try {
-            $response = $user->bacUpdate($bacNum, $inputs);
+            $bac->update($inputs);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 400);
         }
-        if (!$response) return response()->json(['message' => 'Error bac not found'], 400);
         return response()->json(['message' => 'Bac updated'], 201);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param Request $request
-     * @param $bacNum
-     * @return JsonResponse
+     * @param  \App\Models\Bac  $bac
+     * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $bacNum): JsonResponse
+    public function destroy(Request $request, $bacNum)
     {
         $user = $request->user();
         $bac = $user->bacGet($bacNum);
