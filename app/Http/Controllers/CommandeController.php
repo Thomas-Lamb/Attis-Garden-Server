@@ -14,12 +14,11 @@ class CommandeController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $user = User::where("api_token", $request->input("api_token"))->first();
-        $commandes = Commande::where("id_user", $user->id)->get();
+        $user = $request->user();
+        $commandes = $user->commandeGetAll();
         foreach ($commandes as $commande) {
             $commande_produits = Commande_produit::where("id_commande", $commande->id)->join('produits', 'commande_produits.id_produit', '=', 'produits.id')->get();
             $commande->produits = $commande_produits;
@@ -38,14 +37,15 @@ class CommandeController extends Controller
      */
     public function store(Request $request)
     {
-        $user = User::where('api_token', $request->input('api_token'))->first();
+        $user = $request->user();
         Commande::create([
             'id_user' => $user->id,
             'traitement' => $request->input('traitement', 1),
             'pay' => $request->input('pay', 1)
         ]);
         $commande = Commande::orderByDesc('created_at')->where('id_user', $user->id)->first();
-        foreach ($request->input('produits', []) as $produit) {
+        $produits = $request->input('produits', []);
+        foreach ($produits as $produit) {
             Commande_produit::create([
                 'id_produit' => $produit["id"],
                 'quantity' => $produit["quantity"],
@@ -58,7 +58,6 @@ class CommandeController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Models\Commande  $commande
-     * @return \Illuminate\Http\Response
      */
     public function show(Commande $commande)
     {

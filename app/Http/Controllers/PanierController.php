@@ -16,8 +16,8 @@ class PanierController extends Controller
      */
     public function index(Request $request)
     {
-        $user = User::where("api_token", $request->input("api_token"))->first();
-        $paniers = Panier::where("id_user", $user->id)->join('produits', 'paniers.id_produit', '=', 'produits.id')->get();
+        $user = $request->user();
+        $paniers = $user->panierGetAll();
         return PanierResource::collection($paniers);
     }
 
@@ -26,7 +26,7 @@ class PanierController extends Controller
      */
     public function store(Request $request)
     {
-        $user = User::where("api_token", $request->input("api_token"))->first();
+        $user = $request->user();
         Panier::create([
             'id_produit' => $request->input('id_produit'),
             'quantity' => $request->input('quantity'),

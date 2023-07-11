@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommandeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BacController;
@@ -49,10 +50,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bac', BacController::class);
     // Api compartiment
     Route::get('compartimenttest', [CompartimentController::class, 'test']);
-    Route::apiResource('compartiment', CompartimentController::class);
+    Route::apiResource('panier', PanierController::class);
+    Route::apiResource('commandeproduit', Commande_produitController::class);
+    Route::apiResource('commande', CommandeController::class);
 });
 
 Route::middleware('auth.api')->group(function () {
+    Route::apiResource('compartiment', CompartimentController::class);
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
@@ -66,10 +70,8 @@ Route::middleware('auth.api')->group(function () {
     Route::apiResource('ai', AIController::class);
 
     // Api Commande
-    Route::apiResource('commande', Commande_produitController::class);
 
     // Api Panier
-    Route::apiResource('panier', PanierController::class);
 
     // Api Wiki
     Route::apiResource('wiki', WikiController::class);
