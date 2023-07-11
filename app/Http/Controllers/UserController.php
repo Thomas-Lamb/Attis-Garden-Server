@@ -29,6 +29,7 @@ class UserController extends Controller
             'last_name' => [],
         ]);
         $inputs['privilege'] = 3;
+        $inputs['api_token'] = '';
         $inputs['password'] = Hash::make($inputs['password']);
         if ($user = User::create($inputs)) {
             $user_api_token = $user->createToken('token')->plainTextToken;

@@ -3,15 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasBacTrait;
+use App\Traits\HasPanierTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Traits\HasBacTrait;
+use App\Traits\HasCommandesTrait;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasBacTrait;
+    use HasApiTokens, HasFactory, Notifiable, HasCommandesTrait, HasPanierTrait, HasBacTrait;
 
     /**
      * The attributes that are mass assignable.

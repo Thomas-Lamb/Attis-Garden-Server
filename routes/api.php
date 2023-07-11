@@ -49,10 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bac', BacController::class);
     // Api compartiment
     Route::get('compartimenttest', [CompartimentController::class, 'test']);
+    Route::apiResource('compartiment', CompartimentController::class);
 });
 
 Route::middleware('auth.api')->group(function () {
-    Route::apiResource('compartiment', CompartimentController::class);
 
     // Api Produit
     Route::apiResource('produit', ProduitController::class);
